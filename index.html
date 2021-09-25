@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>西窗烛</title>
+</head>
+
+<body style="overflow: hidden; background-color: whitesmoke !important;">
+    <webview id="xcz" src="http://lib.xcz.im/library" style="width: 1080px;height: 768px;"></webview>
+</body>
+<script>
+    onload = () => {
+        const {
+            ipcRenderer,
+            remote
+        } = require('electron')
+        const robot = require('robotjs');
+        var browser;
+        const browserView = document.getElementById('xcz')
+        browserView.addEventListener('load-commit', () => {
+            browser = remote.webContents.fromId(browserView.getWebContentsId())
+            browser.insertCSS('.market,.discover,.btn-log-in,.logo,.bottom-bar{display: none !important;}')
+            browser.insertCSS('#footer{visibility:hidden !important;}')
+            browser.insertCSS('* {font-family:STSong,STFangsong !important;}')
+            browser.insertCSS('input::-webkit-input-placeholder{font-family:STSong,STFangSong !important;}')
+            browser.executeJavaScript('var elements=document.getElementsByTagName("a");for(var i=0;i<elements.length;i++){elements[i].target="_self"}')
+            if (browser.getTitle().indexOf('xcz') == -1) {
+
+                remote.getCurrentWindow().setTitle(browser.getTitle())
+            } else {
+
+                remote.getCurrentWindow().setTitle('西窗烛')
+            }
+        });
+        ipcRenderer.on('swaPage', (event, arg) => {
+            if (arg === 'up') {
+                robot.keyTap('pageup')
+            } else if (arg === 'down') {
+                robot.keyTap('pagedown')
+            } else if (arg === 'left') {
+                browser.executeJavaScript('var element=document.getElementsByClassName("prev-img");if(element.length > 0){element[0].click();0;}', true)
+            } else if (arg === 'right') {
+                browser.executeJavaScript('var element=document.getElementsByClassName("next-img");if(element.length > 0){element[0].click();0;}', true)
+            } else if (arg === 'search') {
+                browser.executeJavaScript('var element=document.getElementsByClassName("btn-search");if(element.length > 0){element[0].click();0;}', true)
+            }
+        });
+    }
+</script>
+
+</html>
