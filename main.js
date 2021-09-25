@@ -3,9 +3,8 @@ const {
     BrowserWindow,
     TouchBar,
     ipcMain,
-    session,
     globalShortcut,
-    shell
+    Notification,
 } = require('electron')
 
 const {
@@ -16,8 +15,6 @@ const {
 var win = null
 
 
-// 判断登录
-// navBar_link_Login
 const closeApp = new TouchBarButton({
     label: '关闭',
     click: () => {
@@ -29,6 +26,20 @@ const touchBar = new TouchBar({
     items: [
         closeApp, new TouchBarSpacer(),
     ]
+})
+
+
+ipcMain.on('copysuccess', (event, arg) => {
+    new Notification({
+        title: '复制成功 :)',
+        body: arg
+    }).show()
+})
+ipcMain.on('copyfailed', (event, arg) => {
+    new Notification({
+        title: '复制失败 :(',
+        body: arg
+    }).show()
 })
 
 function createWindow() {
@@ -62,6 +73,7 @@ app.whenReady().then(() => {
         globalShortcut.unregister('ctrl+k')
         globalShortcut.unregister('ctrl+h')
         globalShortcut.unregister('ctrl+l')
+        globalShortcut.unregister('ctrl+c')
         globalShortcut.unregister('enter')
     });
     win.on('focus', () => {
@@ -80,6 +92,9 @@ app.whenReady().then(() => {
         // l向右滚动
         globalShortcut.register('ctrl+l', () => {
             win.webContents.send('swaPage', 'right')
+        })
+        globalShortcut.register('ctrl+c', () => {
+            win.webContents.send('swaPage', 'copy')
         })
         globalShortcut.register('enter', () => {
             win.webContents.send('swaPage', 'search')

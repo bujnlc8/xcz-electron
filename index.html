@@ -13,7 +13,8 @@
     onload = () => {
         const {
             ipcRenderer,
-            remote
+            remote,
+            clipboard,
         } = require('electron')
         const robot = require('robotjs');
         var browser;
@@ -37,6 +38,15 @@
                 browser.executeJavaScript('var element=document.getElementsByClassName("next-img");if(element.length > 0){element[0].click();0;}', true)
             } else if (arg === 'search') {
                 browser.executeJavaScript('var element=document.getElementsByClassName("btn-search");if(element.length > 0){element[0].click();0;}', true)
+            } else if (arg === 'copy') {
+                browser.executeJavaScript('if(document.getElementsByClassName("work").length > 0){var e=document.getElementsByClassName("content indent");if(e.length==0){e=document.getElementsByClassName("content center")};var res="";var title=document.getElementsByClassName("title");if(title.length>0){res+=(title[0].textContent + "\\n")};var author = document.getElementsByClassName("author");if(author.length > 0){res += (author[0].textContent.trim() + "\\n")}; if(e.length > 0){var ee=e[0];var child=ee.children;for(var i=0;i<child.length;i++){res += (child[i].textContent + "\\n")}};res.trim();}else{"";}').then((res) => {
+                    if (res.length > 0) {
+                        clipboard.writeText(res)
+                        ipcRenderer.send('copysuccess', res.replace(/\s*/g, ''))
+                    }
+                }).catch((e) => {
+                    ipcRenderer.send('copyfailed', e)
+                });
             }
         });
     }
