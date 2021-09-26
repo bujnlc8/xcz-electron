@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>西窗烛</title>
+    <!--<title>西窗烛</title>-->
 </head>
 
 <body style="overflow: hidden;">
@@ -17,23 +17,14 @@
             clipboard,
         } = require('electron')
         var utterThis = new window.SpeechSynthesisUtterance();
-        utterThis.onstart = (e) => {
-            ipcRenderer.send('speakStart')
-        }
-        utterThis.onpause = (e) => {
-            ipcRenderer.send('speakStop')
-        }
-        utterThis.onresume = (e) => {
-            ipcRenderer.send('speakStart')
-        }
         utterThis.onend = (e) => {
             ipcRenderer.send('speakStop')
         }
         utterThis.onerror = (e) => {
             ipcRenderer.send('speakStop')
         }
-        utterThis.rate = 0.9
-        utterThis.pitch = 0.9
+        utterThis.rate = 0.7
+        utterThis.pitch = 0.6
         const robot = require('robotjs');
         var browser;
         const browserView = document.getElementById('xcz')
@@ -60,7 +51,14 @@
                 browser.executeJavaScript('if(document.getElementsByClassName("work").length > 0){var e=document.getElementsByClassName("content indent");if(e.length==0){e=document.getElementsByClassName("content center")};var res="";var title=document.getElementsByClassName("title");if(title.length>0){res+=(title[0].textContent + "\\n")};var author = document.getElementsByClassName("author");if(author.length > 0){res += (author[0].textContent.trim() + "\\n")}; if(e.length > 0){var ee=e[0];var child=ee.children;for(var i=0;i<child.length;i++){res += (child[i].textContent + "\\n")}};res.trim();}else{"";}').then((res) => {
                     if (res.length > 0) {
                         clipboard.writeText(res)
-                        ipcRenderer.send('copysuccess', res.replace(/\s*/g, ''))
+                        res = res.split('\n')
+                        var title = res[0].trim()
+                        var author = res[1].trim()
+                        var content = ''
+                        for (var i = 2; i < res.length; i++) {
+                            content += (res[i] + '\n')
+                        }
+                        ipcRenderer.send('copysuccess', title, author, content)
                     }
                 }).catch((e) => {
                     ipcRenderer.send('copyfailed', e)
@@ -68,7 +66,7 @@
             } else if (arg == 'startSpeak') {
                 browser.executeJavaScript('if(document.getElementsByClassName("work").length > 0){var e=document.getElementsByClassName("content indent");if(e.length==0){e=document.getElementsByClassName("content center")};var res="";var title=document.getElementsByClassName("title");if(title.length>0){res+=(title[0].textContent + "\\n")};var author = document.getElementsByClassName("author");if(author.length > 0){res += (author[0].textContent.trim() + "\\n")}; if(e.length > 0){var ee=e[0];var child=ee.children;for(var i=0;i<child.length;i++){res += (child[i].textContent + "\\n")}};res.trim();}else{"";}').then((res) => {
                     if (res.length > 0) {
-                        utterThis.text = res.replace(/\s*/g, '')
+                        utterThis.text = res.replace(/[，/]/g, '，，，').replaceAll('\n', '，，,').replace(/\s*/g, '')
                         window.speechSynthesis.speak(utterThis);
                     } else {
                         ipcRenderer.send('speakStop')
