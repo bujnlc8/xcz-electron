@@ -22,12 +22,25 @@ const closeApp = new TouchBarButton({
     }
 })
 
+const speak = new TouchBarButton({
+    label: '朗读🙉',
+    click: () => {
+        if (speak.label === '朗读🙉') {
+            win.webContents.send('commander', 'startSpeak')
+            speak.label = '停止🙊'
+        } else {
+            win.webContents.send('commander', 'stopSpeak')
+            speak.label = '朗读🙉'
+        }
+    }
+})
+
 const touchBar = new TouchBar({
     items: [
         closeApp, new TouchBarSpacer(),
+        speak,
     ]
 })
-
 
 ipcMain.on('copysuccess', (event, arg) => {
     new Notification({
@@ -35,11 +48,20 @@ ipcMain.on('copysuccess', (event, arg) => {
         body: arg
     }).show()
 })
+
 ipcMain.on('copyfailed', (event, arg) => {
     new Notification({
         title: '复制失败 :(',
         body: arg
     }).show()
+})
+
+ipcMain.on('speakStart', (event, args) => {
+    speak.label = '停止🙊'
+})
+
+ipcMain.on('speakStop', (event, args) => {
+    speak.label = '朗读🙉'
 })
 
 function createWindow() {
@@ -48,6 +70,7 @@ function createWindow() {
         height: 768,
         resizable: false,
         webPreferences: {
+            devTools: false,
             webviewTag: true,
             nodeIntegration: true,
             contextIsolation: false,
@@ -55,7 +78,6 @@ function createWindow() {
             scrollBounce: true,
             defaultFontFamily: 'monospace',
         },
-        opacity: 0.98,
         center: true
     })
     win.loadFile('index.html')
@@ -79,25 +101,25 @@ app.whenReady().then(() => {
     win.on('focus', () => {
         // j向下滚动
         globalShortcut.register('ctrl+j', () => {
-            win.webContents.send('swaPage', 'down')
+            win.webContents.send('commander', 'down')
         })
         // k向上滚动
         globalShortcut.register('ctrl+k', () => {
-            win.webContents.send('swaPage', 'up')
+            win.webContents.send('commander', 'up')
         })
         // h向左滚动
         globalShortcut.register('ctrl+h', () => {
-            win.webContents.send('swaPage', 'left')
+            win.webContents.send('commander', 'left')
         })
         // l向右滚动
         globalShortcut.register('ctrl+l', () => {
-            win.webContents.send('swaPage', 'right')
+            win.webContents.send('commander', 'right')
         })
         globalShortcut.register('ctrl+c', () => {
-            win.webContents.send('swaPage', 'copy')
+            win.webContents.send('commander', 'copy')
         })
         globalShortcut.register('enter', () => {
-            win.webContents.send('swaPage', 'search')
+            win.webContents.send('commander', 'search')
         })
     });
 })
