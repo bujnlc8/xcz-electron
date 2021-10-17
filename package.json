@@ -13,9 +13,10 @@
   "author": "linghaihui",
   "license": "MIT",
   "devDependencies": {
-    "electron": "^14.0.1",
+    "electron": "^13.1.0",
     "electron-builder": "^22.10.5",
-    "electron-icon-maker": "^0.0.5"
+    "electron-icon-maker": "^0.0.5",
+    "electron-rebuild": "^3.2.3"
   },
   "build": {
     "appId": "site.haihui.xcz",

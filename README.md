@@ -39,3 +39,17 @@ npm install
 npm run release
 
 ```
+
+如果发现robotjs报错，可以采取以下方式重新安装
+
+```
+
+1.rm -rf node-modules/robotjs
+
+2.rm -rf packages-lock.json
+
+3.npm i
+
+4./node_modules/.bin/electron-rebuild
+
+```

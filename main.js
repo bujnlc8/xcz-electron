@@ -133,7 +133,7 @@ function createWindow() {
         height: 768,
         resizable: false,
         webPreferences: {
-            devTools: false,
+            devTools: true,
             webviewTag: true,
             nodeIntegration: true,
             contextIsolation: false,
